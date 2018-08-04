@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Insert Public Holidays into Leave Calendar-->
+    <record id="view_holiday_new_calendar_inherit" model="ir.ui.view">
+        <field name="name">hr.holiday.calendar.inherit</field>
+        <field name="model">hr.public.holiday.holidays</field>
+        <field name="inherit_id" ref="hr_holidays.view_holiday_new_calendar" />
+        <field name="arch" type="xml">
+            <xpath expr="/calendar" position="after">
+                <calendar string="Public Holidays" date_start="date" date_stop="date" mode="month" quick_add="False" color="date">
+                    <field name="name"/>
+                </calendar>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,61 @@
+<odoo>
+
+    <report id="action_hr_insurance_report"
+            string="Insurance"
+            model="hr.insurance"
+            report_type="qweb-pdf"
+            name="HR.report_insurance" />
+
+    <template id="report_insurance">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <xpath expr="." position="inside">
+                            <link href="/HR/static/src/css/report.css" rel="stylesheet" />
+                        </xpath>
+
+                        <strong>Ref No. <span t-field="o.ref_no" /></strong>
+                        <p/>
+                        <strong>Current State. <span t-field="o.state" /></strong>
+                        <p/>
+                        <center><h3><b>Insurance Company Details</b></h3></center>
+                        <table class="table table-bordered">
+                            <tr>
+                                <td class="table_title">Insurance Company</td>
+                                <td><span t-field="o.insurance_company" /></td>
+                                <td class="table_title">Agent Name</td>
+                                <td><span t-field="o.insurance_agent" /></td>
+                            </tr>
+                            <tr>
+                                <td class="table_title">Employee Name</td>
+                                <td><span t-field="o.employee_id" /></td>
+                                <td class="table_title">Agent H/P</td>
+                                <td><span t-field="o.insurance_agent_hp_num" /></td>
+                            </tr>
+                        </table>
+
+                        <p/>
+                        <center><h3><b>Insurance Details</b></h3></center>
+                        <p/>
+
+                        <table class="table table-bordered">
+                            <tr>
+                                <td class="table_title">Insurance Type</td>
+                                <td><span t-field="o.name" /></td>
+                                <td class="table_title">Insurance Amount</td>
+                                <td><span t-field="o.insurance_amount" /></td>
+                            </tr>
+                            <tr>
+                                <td class="table_title">Date From</td>
+                                <td><span t-field="o.insurance_start_date" /></td>
+                                <td class="table_title">Date To</td>
+                                <td><span t-field="o.insurance_expired_date" /></td>
+                            </tr>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

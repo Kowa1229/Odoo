@@ -1,0 +1,145 @@
+<?xml version="1.0"?>
+<odoo>
+    <!-- Inherits -->
+    <record id="view_employee_form_inherit" model="ir.ui.view">
+        <field name="name">hr.employee.form</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//group[@name='work_permit']" position="replace">
+                <group string="Work Permit" name="work_permit">
+                    <!--<field name="visa_no"/>-->
+                    <field name="permit_no" string="WP No"/>
+                    <!--<field name="visa_expire"/>-->
+                    <field name="permit_expire"/>
+                    <field name="permit_duration"/>
+                    <field name="permit_cost"/>
+                    <!--<field name="image" widget='image' class="oe_avatar" options='{"preview_image":"image_medium"}'/>-->
+                    <field name="permit_image" widget="image" class="oe_avatar"/>
+                </group>
+                <group string="Visa" name="visa">
+                    <field name="visa_no"/>
+                    <field name="visa_expire" />
+                    <field name="visa_duration" />
+                    <field name="visa_cost" />
+                    <!--<field name="visa_expire" attrs="{'readonly':[('visa_no', '!=', '')]}"/>-->
+                    <!--<field name="visa_duration" attrs="{'readonly':[('visa_no', '==', '')]}"/>-->
+                    <field name="visa_image"/>
+                </group>
+            </xpath>
+
+            <xpath expr="//field[@name='country_id']" position="before">
+                <field name="employee_type" />
+            </xpath>
+
+            <xpath expr="//page[@name='hr_settings']" position="after">
+                <page name="costs_information" string='Insert Costs' groups="hr.group_hr_user">
+                    <notebook>
+                        <page name="transport_information" string='Transport Costs' groups="hr.group_hr_user">
+                            <separator string="Transport Costs" />
+                            <!--<field name="transport_ids" />-->
+                            <field name="transport_ids">
+                                <form>
+                                    <!--<field name="food_name" />-->
+                                    <!--<field name="food_category" />-->
+                                    <!--<field name="food_cost" sum="Total Amount"/>-->
+                                </form>
+                                <tree editable="bottom">
+                                    <field name="name" />
+                                    <field name="transport_type" />
+                                    <field name="transport_date" />
+                                    <field name="transport_cost" sum="Total Amount"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page name="board_information" string='Board Costs' groups="hr.group_hr_user">
+                            <separator string="Board Costs" />
+                            <!--<field name="board_ids" />-->
+                            <field name="board_ids">
+                                <form>
+                                    <!--<field name="food_name" />-->
+                                    <!--<field name="food_category" />-->
+                                    <!--<field name="food_cost" sum="Total Amount"/>-->
+                                </form>
+                                <tree editable="bottom">
+                                    <field name="name" />
+                                    <field name="board_type" />
+                                    <field name="board_cost" sum="Total Amount"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page name="food_information" string='Food Costs' groups="hr.group_hr_user">
+                            <separator string="Food Costs" />
+                            <field name="food_ids">
+                                <form>
+                                    <!--<field name="food_name" />-->
+                                    <!--<field name="food_category" />-->
+                                    <!--<field name="food_cost" sum="Total Amount"/>-->
+                                </form>
+                                <tree editable="bottom">
+                                    <field name="name" />
+                                    <field name="food_category" />
+                                    <field name="food_cost" sum="Total Amount"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </page>
+                <!-- Cost Report -->
+                <page name="cost_report" string="Cost Report" groups="hr.group_hr_user">
+                    <group>
+                        <group string="Cost of hiring (Monthly)" name="cost_of_hiring_month" groups="hr.group_hr_user">
+                            <field name="total_wp_cost" />
+                            <field name="total_visa_cost" />
+                            <field name="total_transport_cost" />
+                            <field name="total_board_cost" />
+                            <field name="total_food_cost" />
+                            <separator string="Net"/>
+                            <field name="total_cost" />
+                        </group>
+                        <group string="Cost of hiring (Yearly)" name="cost_of_hiring_year" groups="hr.group_hr_user">
+
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+
+        </field>
+    </record>
+
+    <record id="view_tree_board_cost" model="ir.ui.view">
+        <field name="name">Board Cost</field>
+        <field name="model">hr.employee.board</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="board_type" />
+                <field name="board_cost" sum="Total Amount"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_tree_transport_cost" model="ir.ui.view">
+        <field name="name">Transport Cost</field>
+        <field name="model">hr.employee.transport</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="transport_type" />
+                <field name="transport_date" />
+                <field name="transport_cost" sum="Total Amount"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_tree_food_cost" model="ir.ui.view">
+        <field name="name">Food Cost</field>
+        <field name="model">hr.employee.food</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name" />
+                <field name="food_category" />
+                <field name="food_cost" sum="Total Amount"/>
+            </tree>
+        </field>
+    </record>
+</odoo>

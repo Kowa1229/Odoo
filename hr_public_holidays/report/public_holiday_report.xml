@@ -1,0 +1,39 @@
+<odoo>
+    <report id="action_hr_public_holidays_report"
+            string="Public Holidays"
+            model="hr.public.holiday"
+            report_type="qweb-pdf"
+            name="hr_public_holidays.report_public_holidays" />
+
+    <template id="report_public_holidays">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <p/>
+                            <center><h3><b>Public Holidays (<span t-field="o.year" />)</b></h3></center>
+                        <p/>
+
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Days</th>
+                                    <th>Name</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="o.holiday_ids" t-as="holidays">
+                                    <td><span t-field="holidays.date" /></td>
+                                    <td><span t-field="holidays.date_day" /></td>
+                                    <td><span t-field="holidays.name" /></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+
+    </template>
+</odoo>
