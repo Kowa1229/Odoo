@@ -9,7 +9,7 @@ class HrInsurance(models.Model):
     # name = fields.Char('')
     name = fields.Many2one('hr.insurance.type', string='Insurance Type', required=True)
     ref_no = fields.Char('Ref No.', readonly=True)
-    employee_id = fields.Many2one('hr.employee', string='Employee')
+    employee_id = fields.Many2one('hr.employee', string='Employee Name')
     insurance_start_date = fields.Date('Start Date', default=lambda self:fields.Date.today())
     insurance_expired_date = fields.Date('Expired Date', default=lambda self:fields.Date.today())
     insurance_amount = fields.Float('Insurance Amount', digits=(5,2), default=0.00, required=True)
@@ -19,10 +19,14 @@ class HrInsurance(models.Model):
     state = fields.Selection([
         ('draft', 'To Submit'),
         ('pending', 'Pending'),
-        ('cancel', 'Cancelled'),
-        ('approve', 'Approved'),
-        ('terminated', 'Terminated')
-    ], string='Status', readonly=True, default='pending')
+        ('running', 'Running'),
+        ('renew', 'To Renew'),
+        ('expired', 'Expired'),
+        ('cancel', 'Cancelled')
+    ], string='Status', readonly=True, default='pending', group_expand='_expand_states')
+
+    def _expand_states(self, states, domain, order):
+        return [key for key, val in type(self).state.selection]
 
     @api.model
     def create(self,vals):
@@ -69,11 +73,18 @@ class HrInsurance(models.Model):
         return self.write({'state': 'approve'})
 
     @api.multi
-    def action_terminate(self):
+    def action_expired(self):
         if self.state != 'approve':
-            raise ValidationError('Insurance state must be "Approve" in order to Terminate.')
+            raise ValidationError('Insurance state must be "Approve" in order to make it Expired.')
 
-        return self.write({'state': 'terminate'})
+        return self.write({'state': 'expired'})
+
+    @api.multi
+    def action_renew(self):
+        if self.state != 'approve':
+            raise ValidationError('Insurance state must be "Approve" in order to Renew state.')
+
+        return self.write({'state': 'renew'})
 
 class HrInsuranceType(models.Model):
     _name = 'hr.insurance.type'

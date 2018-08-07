@@ -38,7 +38,7 @@ class HumanResource(models.Model):
 
     def _compute_insurance_count(self):
         insurance_counts = self.env['hr.insurance'].read_group([('employee_id', 'in', self.ids)],
-                                                              ['employee_id'], ['employee_id'])
+                                                               ['employee_id'], ['employee_id'])
         mapped_data = dict([(m['employee_id'][0], m['employee_id_count']) for m in insurance_counts])
         for insurance in self:
             insurance.insurance_count = mapped_data.get(insurance.id, 0)
@@ -129,7 +129,7 @@ class HrFood(models.Model):
     _description = "Employee Food"
 
     employee_id = fields.Many2one('hr.employee', string='Employee Name')
-    
+
     name = fields.Char(
         string='Food Name',
         required=True,

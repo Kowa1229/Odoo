@@ -81,7 +81,9 @@ class HrHolidays(models.Model):
         """
         Take range of two dates and return all affected dates
         """
-        date_to = fields.Datetime.from_string(date_to)
+        date_from = datetime.strptime(date_from, DTF)
+        date_to = datetime.strptime(date_to, DTF)
+
         for n in range(int((date_to - date_from).days) + 1):
             yield date_from + timedelta(n)
 
