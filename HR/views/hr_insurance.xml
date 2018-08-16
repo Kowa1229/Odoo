@@ -56,31 +56,16 @@
                         </group>
                         <group>
                             <separator string="Company Details" />
-                            <!--<group string="Company Details">-->
                             <field name="insurance_company"
                                    domain="[('is_company', '=', True)]"/>
-                            <!--</group>-->
-                            <!--<group string="Agent">-->
                             <separator string="Agent Details" />
                             <field name="insurance_agent"
                                    domain="[('parent_id', '=', insurance_company),
                                             ('is_company', '=', False)]"/>
                             <field name="insurance_agent_hp_num"/>
-                            <!--</group>-->
-                            <!--<group string="Employee">-->
                             <separator string="Employee Details" />
                             <field name="employee_id"/>
-                            <!--</group>-->
                         </group>
-                        <!--<group string="Agent">-->
-                        <!--<field name="insurance_agent"-->
-                        <!--domain="[('parent_id', '=', insurance_company),-->
-                        <!--('is_company', '=', False)]"/>-->
-                        <!--<field name="insurance_agent_hp_num"/>-->
-                        <!--</group>-->
-                        <!--<group string="Employee">-->
-                        <!--<field name="employee_id"/>-->
-                        <!--</group>-->
                     </group>
                 </sheet>
                 <div class="oe_chatter">
@@ -103,6 +88,7 @@
         <field name="arch" type="xml">
             <tree string="Insurance Types">
                 <field name="name"/>
+                <field name="cover_ids" widget="many2many_tags"/>
             </tree>
         </field>
     </record>
@@ -116,9 +102,44 @@
                 </header>
                 <sheet>
                     <group>
-                        <group>
-                            <field name="name" />
-                        </group>
+                        <field name="name" />
+                        <field name="cover_ids" widget="many2many_tags" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Insurance Cover Type -->
+    <act_window id="action_hr_insurance_cover_type"
+                name="Insurance Cover Type"
+                res_model="hr.insurance.cover.type"
+                view_mode="tree,form" />
+
+    <record id="insurance_cover_type_tree" model="ir.ui.view">
+        <field name="name">hr.insurance.cover.type.tree</field>
+        <field name="model">hr.insurance.cover.type</field>
+        <field name="arch" type="xml">
+            <tree string="Insurance Cover Types">
+                <field name="name"/>
+                <!--<field name="parent_type_ids" />-->
+                <field name="ref_code"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="insurance_cover_type_form" model="ir.ui.view">
+        <field name="name">hr.insurance.cover.type.form</field>
+        <field name="model">hr.insurance.cover.type</field>
+        <field name="arch" type="xml">
+            <form string="Insurance Cover Type">
+                <header>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <!--<field name="parent_type_ids" widget="many2many_tags"/>-->
+                        <field name="ref_code"/>
                     </group>
                 </sheet>
             </form>
@@ -264,5 +285,12 @@
               action="action_hr_insurance_type"
               parent="menu_hr_insurance_title"
               sequence="5"
+              groups="hr.group_hr_manager" />
+
+    <menuitem id="menu_hr_insurance_cover_type"
+              name="Insurance Cover Types"
+              action="action_hr_insurance_cover_type"
+              parent="menu_hr_insurance_title"
+              sequence="6"
               groups="hr.group_hr_manager" />
 </odoo>

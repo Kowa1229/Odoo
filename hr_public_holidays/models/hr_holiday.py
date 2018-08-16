@@ -39,10 +39,10 @@ class HrHolidays(models.Model):
 
         # Compute and update the number of days
         if (date_to and date_from) and (date_from <= date_to):
-            # self.number_of_days_temp = self._get_number_of_days(date_from, date_to, self.employee_id.id)
-            num_days_raw = self._get_number_of_days(date_from, date_to, self.employee_id.id)
+            self.number_of_days_temp = self._get_number_of_days(date_from, date_to, self.employee_id.id)
+            # num_days_raw = self._get_number_of_days(date_from, date_to, self.employee_id.id)
 
-            self.compute_days(num_days_raw, date_from, date_to)
+            # self.compute_days(num_days_raw, date_from, date_to)
         else:
             self.number_of_days_temp = 0
 
@@ -54,9 +54,10 @@ class HrHolidays(models.Model):
 
         # Compute and update the number of days
         if (date_to and date_from) and (date_from <= date_to):
-            num_days_raw = self._get_number_of_days(date_from, date_to, self.employee_id.id)
+            self.number_of_days_temp = self._get_number_of_days(date_from, date_to, self.employee_id.id)
+            # num_days_raw = self._get_number_of_days(date_from, date_to, self.employee_id.id)
 
-            self.compute_days(num_days_raw, date_from, date_to)
+            # self.compute_days(num_days_raw, date_from, date_to)
         else:
             self.number_of_days_temp = 0
 
@@ -66,6 +67,10 @@ class HrHolidays(models.Model):
         to_dt = fields.Datetime.from_string(date_to)
 
         time_delta = to_dt - from_dt
+
+        raise ValidationError(time_delta)
+        # raise ValidationError(math.ceil(time_delta.days + float(time_delta.seconds) / 86400))
+
         return math.ceil(time_delta.days + float(time_delta.seconds) / 86400)
 
     # def daterange(start_date, end_date):
