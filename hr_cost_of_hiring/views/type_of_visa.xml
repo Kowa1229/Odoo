@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<odoo>
+    <record model="ir.ui.view" id="type_of_visa_form_view">
+        <field name="name">hr.employee.form</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <field name="visa_no" position="before">
+                <field name="visa_type"/>
+                <field name="upload_file" filename="file_name"/>
+                <field name="file_name" invisible="1"/>
+                <field name="attachment_ids" widget="many2many_binary"/>
+            </field>
+
+        </field>
+    </record>
+</odoo>

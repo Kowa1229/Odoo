@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="hr_medical_claim_view_search" model="ir.ui.view">
+        <field name="name">hr.medical.claim.search</field>
+        <field name="model">hr.medical.claim</field>
+        <field name="arch" type="xml">
+            <search string="Search Medical Claim">
+                <field name="name" />
+                <field name="insurance_id" />
+                <field name="ref_no" />
+                <field name="file_number" />
+                <field name="total_claimed_amount" />
+                <field name="date"/>
+                <field name="stage_id"/>
+                <field name="last_stage_id"/>
+                <group expand="0" string="Group By">
+                    <filter string="Stage" name="stage" domain="[]" context="{'group_by':'stage_id'}"/>
+                    <filter string="Date" name="date" domain="[]" context="{'group_by':'date'}"/>
+                    <filter string="Insurance Policy" name="insurance_policy" domain="[]" context="{'group_by':'insurance_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medical_claim" model="ir.actions.act_window">
+        <field name="name">Medical Claim</field>
+        <field name="res_model">hr.medical.claim</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="context">{'search_default_stage': 1}</field>
+        <field name="search_view_id" ref="hr_medical_claim_view_search" />
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Click here to create new Medical Claim.
+            </p>
+        </field>
+    </record>
+
+    <record id="hr_medical_claim_view_kanban" model="ir.ui.view">
+        <field name="name">hr.medical.claim.kanban</field>
+        <field name="model">hr.medical.claim</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_small_column"
+                    group_create="false"
+                    edit="false"
+                    disable_drag_drop_record="true">
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <div class="o_dropdown_kanban dropdown" groups="base.group_user">
+                                <a class="dropdown-toggle btn" data-toggle="dropdown" href="#" >
+                                    <span class="fa fa-ellipsis-v"/>
+                                </a>
+                                <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                                    <t t-if="widget.editable"><li><a type="edit">Edit</a></li></t>
+                                    <t t-if="widget.deletable"><li><a type="delete">Delete</a></li></t>
+                                </ul>
+                            </div>
+                            <div class="oe_kanban_content">
+                                <div>
+                                    <strong class="o_kanban_record_title"><field name="ref_no" /></strong>
+                                </div>
+                                <div>
+                                    <strong class="o_kanban_record_title"><field name="insurance_id" /></strong>
+                                </div>
+                                <div>
+                                    <strong class="o_kanban_record_title"><field name="name" /></strong>
+                                </div>
+                                <div class="text-muted o_kanban_record_subtitle">
+                                    <field name="file_number" attrs="{'invisible': [('file_number', '!=', False)]}"/>
+                                </div>
+                                <div class="text-muted o_kanban_record_subtitle">
+                                    <field name="date" />
+                                </div>
+                                <div class="oe_kanban_bottom_left">
+                                    <img t-att-src="kanban_image('hr.employee', 'image', record.name.raw_value)"
+                                         t-att-title="record.name.value" width="24" height="24"
+                                         class="oe_kanban_avatar pull-right"/>
+                                </div>
+                            </div>
+                            <div class="oe_clear"></div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="medical_claim_tree" model="ir.ui.view">
+        <field name="name">hr.medical.claim.tree</field>
+        <field name="model">hr.medical.claim</field>
+        <field name="arch" type="xml">
+            <tree string="Insurance">
+                <field name="name" />
+                <field name="insurance_id" />
+                <field name="ref_no" />
+                <field name="file_number" />
+                <field name="date" />
+                <field name="stage_id" />
+                <field name="last_stage_id" />
+                <field name="date_last_stage_update" />
+            </tree>
+        </field>
+    </record>
+
+    <record id="medical_claim_form" model="ir.ui.view">
+        <field name="name">hr.medical.claim.form</field>
+        <field name="model">hr.medical.claim</field>
+        <field name="arch" type="xml">
+            <form string="Medical Claim">
+                <header>
+                    <field name="stage_id" widget="statusbar"  clickable="True" />
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_get_attachment_tree_view"
+                                class="oe_stat_button"
+                                icon="fa-book"
+                                type="object">
+                            <field name="attachment_number" widget="statinfo" string="Documents"/>
+                        </button>
+                    </div>
+                    <div class ="oe_title">
+                        <h1><field name="ref_no"/></h1>
+                    </div>
+                    <group>
+                        <group string="Claim Details">
+                            <field name="name" />
+                            <field name="file_number" />
+                            <field name="total_claimed_amount" />
+                            <field name="date" />
+                            <separator string="Last Update" />
+                            <field name="last_stage_id" />
+                            <field name="date_last_stage_update" />
+                            <field name="write_uid" readonly="True" />
+                        </group>
+
+                        <group string="Policy Details">
+                            <field name="insurance_id"
+                                   domain="[('employee_id', '=', name)]" />
+                                   <!--attrs="{'readonly': [('stage_id', '!=', 0)]}" />-->
+                            <separator string="Variance" />
+                            <field name="variance" />
+                            <field name="variance_by" />
+                            <field name="variance_value" />
+                        </group>
+                    </group>
+                </sheet>
+                <!--<div class="oe_chatter">-->
+                    <!--<field name="message_follower_ids" widget="mail_followers" />-->
+                    <!--<field name="message_ids" widget="mail_thread" />-->
+                <!--</div>-->
+            </form>
+        </field>
+    </record>
+
+    <!-- Documents -->
+    <record id="ir_attachment_view_search_inherit_hr_medical_insurance" model="ir.ui.view">
+        <field name="name">ir.attachment.search.inherit.medical.insurance</field>
+        <field name="model">ir.attachment</field>
+        <field name="mode">primary</field>
+        <field name="inherit_id" ref="base.view_attachment_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='create_date']" position="after">
+                <field name="index_content" string="Content"/>
+            </xpath>
+            <xpath expr="//filter[@name='my_documents_filter']" position="attributes">
+                <attribute name='invisible'>1</attribute>
+            </xpath>
+            <xpath expr="//filter[@name='url_filter']" position="attributes">
+                <attribute name='invisible'>1</attribute>
+            </xpath>
+            <xpath expr="//filter[@name='binary_filter']" position="attributes">
+                <attribute name='invisible'>1</attribute>
+            </xpath>
+        </field>
+    </record>
+    <record model="ir.actions.act_window" id="hr_medical_claim_documents">
+        <field name="name">Claim Documents</field>
+        <field name="res_model">ir.attachment</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="view_id" ref="mail.view_document_file_kanban"/>
+        <field name="search_view_id" ref="ir_attachment_view_search_inherit_hr_medical_insurance"/>
+        <field name="domain">[('res_model','=','hr.medical.claim')]</field>
+        <field name="context">{'create': False}</field>
+        <field name="help" type="html">
+            <p>
+                No document yet.
+            </p>
+        </field>
+    </record>
+
+    <!-- Medical Claim Sequence -->
+    <record id="medical_claim_sequence" model="ir.sequence">
+        <field name="name">Medical Claim sequence</field>
+        <field name="code">hr.medical.claim.sequence</field>
+        <field name="prefix">CLM/%(year)s/</field>
+        <field name="padding">5</field>
+    </record>
+
+    <!-- Medical Claim stages -->
+    <record id="action_medical_claim_stage" model="ir.actions.act_window">
+        <field name="name">Medical Claim stage</field>
+        <field name="res_model">hr.medical.claim.stage</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+        <!--<field name="context">{'search_default_group_by_stage': 1}</field>-->
+        <!--<field name="search_view_id" ref="hr_hr_employee_view_search"/>-->
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Click here to create new Medical Claim stage.
+            </p>
+        </field>
+    </record>
+
+    <record id="medical_claim_stage_tree" model="ir.ui.view">
+        <field name="name">hr.medical.claim.stage.tree</field>
+        <field name="model">hr.medical.claim.stage</field>
+        <field name="arch" type="xml">
+            <tree string="Medical Claim stages">
+                <field name="sequence" widget="handle"/>
+                <field name="name" />
+                <field name="fold" />
+            </tree>
+        </field>
+    </record>
+
+    <record id="medical_claim_stage_form" model="ir.ui.view">
+        <field name="name">hr.medical.claim.stage.form</field>
+        <field name="model">hr.medical.claim.stage</field>
+        <field name="arch" type="xml">
+            <form string="Medical Claim stage">
+                <header>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="name" />
+                        <field name="sequence" />
+                        <field name="fold" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <menuitem id="menu_medical_claim_title"
+              name="Claim"
+              parent="hr.menu_hr_root"
+              sequence="25" />
+
+    <menuitem id="menu_medical_claim"
+              name="Medical Claim"
+              action="action_medical_claim"
+              parent="menu_medical_claim_title"
+              sequence="5" />
+
+    <menuitem id="menu_medical_claim_stage"
+              name="Claim Stages"
+              action="action_medical_claim_stage"
+              parent="menu_medical_claim_title"
+              sequence="10" />
+
+    <menuitem id="menu_claim_documents"
+              name="Claim Documents"
+              action="hr_medical_claim_documents"
+              parent="menu_medical_claim_title"
+              sequence="15"/>
+</odoo>

@@ -39,10 +39,10 @@ class HrHolidays(models.Model):
 
         # Compute and update the number of days
         if (date_to and date_from) and (date_from <= date_to):
-            self.number_of_days_temp = self._get_number_of_days(date_from, date_to, self.employee_id.id)
-            # num_days_raw = self._get_number_of_days(date_from, date_to, self.employee_id.id)
+            # self.number_of_days_temp = self._get_number_of_days(date_from, date_to, self.employee_id.id)
+            num_days_raw = self._get_number_of_days(date_from, date_to, self.employee_id.id)
 
-            # self.compute_days(num_days_raw, date_from, date_to)
+            self.compute_days(num_days_raw, date_from, date_to)
         else:
             self.number_of_days_temp = 0
 
@@ -54,10 +54,10 @@ class HrHolidays(models.Model):
 
         # Compute and update the number of days
         if (date_to and date_from) and (date_from <= date_to):
-            self.number_of_days_temp = self._get_number_of_days(date_from, date_to, self.employee_id.id)
-            # num_days_raw = self._get_number_of_days(date_from, date_to, self.employee_id.id)
+            # self.number_of_days_temp = self._get_number_of_days(date_from, date_to, self.employee_id.id)
+            num_days_raw = self._get_number_of_days(date_from, date_to, self.employee_id.id)
 
-            # self.compute_days(num_days_raw, date_from, date_to)
+            self.compute_days(num_days_raw, date_from, date_to)
         else:
             self.number_of_days_temp = 0
 
@@ -66,10 +66,11 @@ class HrHolidays(models.Model):
         from_dt = fields.Datetime.from_string(date_from)
         to_dt = fields.Datetime.from_string(date_to)
 
-        time_delta = to_dt - from_dt
+        # if employee_id:
+        #     employee = self.env['hr.employee'].browse(employee_id)
+        #     return employee.get_work_days_count(from_dt, to_dt)
 
-        raise ValidationError(time_delta)
-        # raise ValidationError(math.ceil(time_delta.days + float(time_delta.seconds) / 86400))
+        time_delta = to_dt - from_dt
 
         return math.ceil(time_delta.days + float(time_delta.seconds) / 86400)
 

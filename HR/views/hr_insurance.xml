@@ -11,14 +11,13 @@
             <tree string="Insurance">
                 <field name="ref_no" />
                 <field name="name"/>
-                <field name="employee_id"/>
                 <field name="insurance_amount"/>
                 <field name="insurance_start_date"/>
                 <field name="insurance_expired_date"/>
-                <field name="insurance_company"/>
-                <field name="insurance_agent"/>
-                <field name="insurance_agent_hp_num"/>
-                <field name="insurance_amount"/>
+                <field name="broker_company"/>
+                <field name="broker_agent"/>
+                <field name="broker_agent_hp_num"/>
+                <field name="company_id"/>
             </tree>
         </field>
     </record>
@@ -36,37 +35,63 @@
         <field name="arch" type="xml">
             <form string="Insurance">
                 <header>
-                    <button string="Running" name="action_running" states="pending" type="object" class="oe_highlight" />
-                    <button string="Cancel" name="action_cancel" states="pending" type="object" class="oe_highlight" />
-                    <button string="To Pending" name="action_pending" states="draft" type="object" class="oe_highlight" />
-                    <button string="Expired" name="action_expired" states="running" type="object" class="oe_highlight" />
-                    <button string="To Renew" name="action_renew" states="running" type="object" class="oe_highlight" />
+                    <button string="Running" name="action_running" type="object" class="oe_highlight"
+                            attrs="{'invisible': [('stage', '!=', 'pending')]}" />
+                    <button string="Cancel" name="action_cancel" type="object" class="oe_highlight"
+                            attrs="{'invisible': [('stage', '!=', 'pending')]}" />
+                    <button string="To Pending" name="action_pending" type="object" class="oe_highlight"
+                            attrs="{'invisible': [('stage', '!=', 'draft')]}" />
+                    <button string="Expired" name="action_expired" type="object" class="oe_highlight"
+                            attrs="{'invisible': [('stage', '!=', 'running')]}" />
+                    <button string="To Renew" name="action_renew" type="object" class="oe_highlight"
+                            attrs="{'invisible': [('stage', '!=', 'running')]}" />
                     <button string="Reset to Draft" name="action_draft" type="object"
-                            attrs="{'invisible': [('state', 'not in', ['pending', 'cancel', 'renew'])]}" />
-                    <field name="state" widget="statusbar" statusbar_visible="draft,pending,running,renew,expired" />
+                            attrs="{'invisible': [('stage', 'not in', ['pending', 'cancel', 'renew', 'expired'])]}" />
+                    <field name="stage" widget="statusbar" statusbar_visible="draft,pending,running,renew,expired" />
                 </header>
                 <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_get_attachment_tree_view"
+                                class="oe_stat_button"
+                                icon="fa-book"
+                                type="object">
+                            <field name="attachment_number" widget="statinfo" string="Documents"/>
+                        </button>
+                    </div>
+                    <div class ="oe_title">
+                        <h1><field name="ref_no"/></h1>
+                    </div>
                     <group>
                         <group string="Insurance Details">
-                            <field name="ref_no" />
                             <field name="name" />
                             <field name="insurance_amount" />
                             <field name="insurance_start_date" />
                             <field name="insurance_expired_date" />
                         </group>
                         <group>
-                            <separator string="Company Details" />
-                            <field name="insurance_company"
+                            <separator string="Broker Details" />
+                            <field name="broker_company"
                                    domain="[('is_company', '=', True)]"/>
                             <separator string="Agent Details" />
-                            <field name="insurance_agent"
-                                   domain="[('parent_id', '=', insurance_company),
+                            <field name="broker_agent"
+                                   domain="[('parent_id', '=', broker_company),
                                             ('is_company', '=', False)]"/>
-                            <field name="insurance_agent_hp_num"/>
-                            <separator string="Employee Details" />
-                            <field name="employee_id"/>
+                            <field name="broker_agent_hp_num"/>
+                            <separator string="Bought By" />
+                            <field name="company_id"/>
                         </group>
                     </group>
+                    <notebook>
+                        <page string="Variance" name="variance_page">
+                            <field name="variance_ids">
+                                <tree editable="bottom">
+                                    <field name="name" />
+                                    <field name="variance_by" />
+                                    <field name="value" />
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
                 </sheet>
                 <div class="oe_chatter">
                     <field name="message_follower_ids" widget="mail_followers" />
@@ -111,16 +136,16 @@
     </record>
 
     <!-- Insurance Cover Type -->
-    <act_window id="action_hr_insurance_cover_type"
-                name="Insurance Cover Type"
-                res_model="hr.insurance.cover.type"
+    <act_window id="action_hr_insurance_coverage"
+                name="Insurance Coverage"
+                res_model="hr.insurance.coverage"
                 view_mode="tree,form" />
 
-    <record id="insurance_cover_type_tree" model="ir.ui.view">
-        <field name="name">hr.insurance.cover.type.tree</field>
-        <field name="model">hr.insurance.cover.type</field>
+    <record id="insurance_coverage_tree" model="ir.ui.view">
+        <field name="name">hr.insurance.coverage.tree</field>
+        <field name="model">hr.insurance.coverage</field>
         <field name="arch" type="xml">
-            <tree string="Insurance Cover Types">
+            <tree string="Insurance Coverage">
                 <field name="name"/>
                 <!--<field name="parent_type_ids" />-->
                 <field name="ref_code"/>
@@ -129,10 +154,10 @@
     </record>
 
     <record id="insurance_cover_type_form" model="ir.ui.view">
-        <field name="name">hr.insurance.cover.type.form</field>
-        <field name="model">hr.insurance.cover.type</field>
+        <field name="name">hr.insurance.coverage.form</field>
+        <field name="model">hr.insurance.coverage</field>
         <field name="arch" type="xml">
-            <form string="Insurance Cover Type">
+            <form string="Insurance Coverage">
                 <header>
                 </header>
                 <sheet>
@@ -146,40 +171,39 @@
         </field>
     </record>
 
-    <record id="act_hr_employee_2_hr_insurance" model="ir.actions.act_window">
-        <field name="name">Insurance</field>
-        <field name="res_model">hr.insurance</field>
-        <field name="view_type">form</field>
-        <field name="view_mode">kanban,tree,form</field>
-        <field name="context">{
-            'search_default_employee_id': [active_id],
-            'default_employee_id': active_id,
-            'search_default_group_by_state': 1
-            }</field>
-        <field name="help" type="html">
-            <p class="oe_view_nocontent_create">
-                Click here to create new insurances.
-            </p>
-        </field>
-    </record>
+    <!--<record id="act_hr_employee_2_hr_insurance" model="ir.actions.act_window">-->
+        <!--<field name="name">Insurance</field>-->
+        <!--<field name="res_model">hr.insurance</field>-->
+        <!--<field name="view_type">form</field>-->
+        <!--<field name="view_mode">kanban,tree,form</field>-->
+        <!--<field name="context">{-->
+            <!--'search_default_employee_id': [active_id],-->
+            <!--'default_employee_id': active_id,-->
+            <!--'search_default_group_by_state': 1-->
+            <!--}</field>-->
+        <!--<field name="help" type="html">-->
+            <!--<p class="oe_view_nocontent_create">-->
+                <!--Click here to create new insurances.-->
+            <!--</p>-->
+        <!--</field>-->
+    <!--</record>-->
 
     <record id="hr_hr_employee_view_search" model="ir.ui.view">
         <field name="name">hr.insurance.search</field>
         <field name="model">hr.insurance</field>
         <field name="arch" type="xml">
             <search string="Search Insurance">
-                <field name="name" string="Insurance Type"/>
+                <field name="name" />
                 <field name="ref_no" />
-                <field name="employee_id"/>
                 <field name="insurance_start_date"/>
                 <field name="insurance_expired_date"/>
-                <field name="insurance_company"/>
-                <field name="insurance_agent"/>
-                <field name="insurance_agent_hp_num"/>
+                <field name="broker_company"/>
+                <field name="broker_agent"/>
+                <field name="broker_agent_hp_num"/>
                 <group expand="0" string="Group By">
-                    <filter string="Employee" domain="[]" context="{'group_by':'employee_id'}"/>
-                    <filter string="Company" name='group_by_company' domain="[]" context="{'group_by':'insurance_company'}"/>
-                    <filter string="State" name='group_by_state' domain="[]" context="{'group_by':'state'}"/>
+                    <!--<filter string="Employee" domain="[]" context="{'group_by':'employee_id'}"/>-->
+                    <filter string="Company" name='group_by_company' domain="[]" context="{'group_by':'broker_company'}"/>
+                    <filter string="Stage" name='group_by_stage' domain="[]" context="{'group_by':'stage'}"/>
                     <filter string="Insurance Type" domain="[]" context="{'group_by': 'name'}"/>
                 </group>
             </search>
@@ -194,7 +218,7 @@
                     group_create="false"
                     edit="false"
                     disable_drag_drop_record="true">
-                <field name="employee_id"/>
+                <!--<field name="employee_id"/>-->
                 <templates>
                     <t t-name="kanban-box">
                         <div class="oe_kanban_card oe_kanban_global_click">
@@ -215,17 +239,16 @@
                                     $ <field name="insurance_amount"/>
                                 </div>
                                 <div class="text-muted o_kanban_record_subtitle">
-                                    <field name="insurance_agent"/>
+                                    <field name="broker_agent"/>
                                 </div>
                                 <div class="text-muted o_kanban_record_subtitle">
                                     <field name="insurance_start_date"/> -
                                     <field name="insurance_expired_date"/>
                                 </div>
                                 <div class="oe_kanban_bottom_left">
-                                    <img t-att-src="kanban_image('res.partner', 'image', record.insurance_agent.raw_value)" t-att-title="record.insurance_agent.value" width="24" height="24" class="oe_kanban_avatar pull-left"/>
-                                </div>
-                                <div class="oe_kanban_bottom_right">
-                                    <img t-att-src="kanban_image('hr.employee', 'image_medium', record.employee_id.raw_value)" t-att-title="record.employee_id.value" width="24" height="24" class="oe_kanban_avatar pull-right"/>
+                                    <img t-att-src="kanban_image('res.partner', 'image', record.broker_agent.raw_value)"
+                                         t-att-title="record.broker_agent.value" width="24" height="24"
+                                         class="oe_kanban_avatar pull-right"/>
                                 </div>
                             </div>
                             <div class="oe_clear"></div>
@@ -241,7 +264,7 @@
         <field name="res_model">hr.insurance</field>
         <field name="view_type">form</field>
         <field name="view_mode">kanban,tree,form</field>
-        <field name="context">{'search_default_group_by_state': 1}</field>
+        <field name="context">{'search_default_group_by_stage': 1}</field>
         <field name="search_view_id" ref="hr_hr_employee_view_search"/>
         <field name="help" type="html">
             <p class="oe_view_nocontent_create">
@@ -249,29 +272,73 @@
             </p>
         </field>
     </record>
-    
-    <!-- Hr employee inherit Legal Leaves -->
-    <record id="hr_hr_employee_view_form2" model="ir.ui.view">
-        <field name="name">hr.hr.employee.view.form2</field>
-        <field name="model">hr.employee</field>
-        <field name="inherit_id" ref="hr.view_employee_form"/>
+
+    <!-- Documents -->
+    <record id="ir_attachment_view_search_inherit_hr_insurance" model="ir.ui.view">
+        <field name="name">ir.attachment.search.inherit.insurance</field>
+        <field name="model">ir.attachment</field>
+        <field name="mode">primary</field>
+        <field name="inherit_id" ref="base.view_attachment_search"/>
         <field name="arch" type="xml">
-            <xpath expr="//button[@name='toggle_active']" position="before">
-                <button name="%(act_hr_employee_2_hr_insurance)d"
-                        class="oe_stat_button"
-                        icon="fa-address-card"
-                        type="action"
-                        groups="hr.group_hr_manager">
-                    <field name="insurance_count" widget="statinfo" string="Insurance"/>
-                </button>
+            <xpath expr="//field[@name='create_date']" position="after">
+                <field name="index_content" string="Content"/>
+            </xpath>
+            <xpath expr="//filter[@name='my_documents_filter']" position="attributes">
+                <attribute name='invisible'>1</attribute>
+            </xpath>
+            <xpath expr="//filter[@name='url_filter']" position="attributes">
+                <attribute name='invisible'>1</attribute>
+            </xpath>
+            <xpath expr="//filter[@name='binary_filter']" position="attributes">
+                <attribute name='invisible'>1</attribute>
             </xpath>
         </field>
     </record>
+    <record model="ir.actions.act_window" id="hr_insurance_documents">
+        <field name="name">Policies and Documents</field>
+        <field name="res_model">ir.attachment</field>
+        <field name="view_type">form</field>
+        <!--<field name="view_mode">tree,form</field>-->
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="view_id" ref="mail.view_document_file_kanban"/>
+        <field name="search_view_id" ref="ir_attachment_view_search_inherit_hr_insurance"/>
+        <field name="domain">[('res_model','=','hr.insurance')]</field>
+        <field name="context">{'create': False}</field>
+        <field name="help" type="html">
+            <p>
+                No document yet.
+            </p>
+        </field>
+    </record>
+
+    <!-- Hr employee inherit Legal Leaves -->
+    <!--<record id="hr_hr_employee_view_form2" model="ir.ui.view">-->
+        <!--<field name="name">hr.hr.employee.view.form2</field>-->
+        <!--<field name="model">hr.employee</field>-->
+        <!--<field name="inherit_id" ref="hr.view_employee_form"/>-->
+        <!--<field name="arch" type="xml">-->
+            <!--<xpath expr="//button[@name='toggle_active']" position="before">-->
+                <!--<button name="%(act_hr_employee_2_hr_insurance)d"-->
+                        <!--class="oe_stat_button"-->
+                        <!--icon="fa-address-card"-->
+                        <!--type="action"-->
+                        <!--groups="hr.group_hr_manager">-->
+                    <!--<field name="insurance_count" widget="statinfo" string="Insurance"/>-->
+                <!--</button>-->
+            <!--</xpath>-->
+        <!--</field>-->
+    <!--</record>-->
 
     <menuitem id="menu_hr_insurance_title"
               name="Insurance"
               parent="hr.menu_hr_root"
               sequence="20"/>
+
+    <menuitem name="Policy Documents"
+              parent="menu_hr_insurance_title"
+              id="menu_policies_documents"
+              action="hr_insurance_documents"
+              sequence="10"/>
 
     <menuitem id="menu_hr_insurance"
               name="Insurance"
@@ -287,9 +354,9 @@
               sequence="5"
               groups="hr.group_hr_manager" />
 
-    <menuitem id="menu_hr_insurance_cover_type"
-              name="Insurance Cover Types"
-              action="action_hr_insurance_cover_type"
+    <menuitem id="menu_hr_insurance_coverage"
+              name="Insurance Coverage"
+              action="action_hr_insurance_coverage"
               parent="menu_hr_insurance_title"
               sequence="6"
               groups="hr.group_hr_manager" />

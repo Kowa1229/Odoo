@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<odoo>
+    <!-- Inherits -->
+    <record id="view_employee_form_inherit" model="ir.ui.view">
+        <field name="name">hr.employee.form</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//page[@name='hr_settings']" position="inside">
+                <notebook>
+                    <page string="Insurance Policy" name="insurance_policy">
+                        <field name="insurance_ids">
+                            <tree editable="bottom">
+                                <field name="name" />
+                                       <!--filter="[('id', '=', name)]" />-->
+                                <field name="insurance_variance_id"
+                                       domain="[('parent_id' , '=', name)]" />
+                                       <!--filter="[('id', '=', name)]" />-->
+                                <!--attrs="{'required':[('name.variance_ids', '!=', False)]}" />-->
+                                <field name="variance_type" />
+                                <field name="variance_value" />
+                            </tree>
+                        </field>
+                    </page>
+                </notebook>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
